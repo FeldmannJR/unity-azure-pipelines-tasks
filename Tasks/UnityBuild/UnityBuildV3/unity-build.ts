@@ -80,7 +80,7 @@ async function run() {
             .arg('-buildTarget').arg(buildTarget)
             .arg('-projectPath').arg(projectPath)
             .arg('-logfile').arg(logFilePath);
-
+        
         const additionalArgs = tl.getInput('additionalCmdArgs') || '';
         if (additionalArgs !== '') {
             unityCmd.line(additionalArgs);
@@ -112,8 +112,11 @@ async function run() {
             throw `Unsupported build script type ${buildScriptType}`
         }
 
+        
         const result = await UnityToolRunner.run(unityCmd, logFilePath);
-
+        process.on("SIGINT", () => {
+            unityCmd.killChildProcess();
+        })
         // Unity process has finished. Set task result.
         if (result === 0) {
             const buildSuccessLog = tl.loc('buildSuccess');
